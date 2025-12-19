@@ -1,20 +1,18 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wits University: Story & Arcade</title>
+    <title>Wits University: Color Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
             --pixel-font: 'VT323', monospace;
             --main-font: 'Fredoka', sans-serif;
-            --bg-color: #0f0c29;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: #0f172a;
             font-family: var(--main-font);
             overflow: hidden;
             touch-action: none;
@@ -32,10 +30,9 @@
         canvas {
             width: 100%;
             height: 100%;
-            image-rendering: pixelated;
+            image-rendering: pixelated; 
         }
 
-        /* UI OVERLAY */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -47,268 +44,158 @@
         }
 
         .quest-box {
-            background: rgba(45, 20, 90, 0.9);
-            border: 2px solid #a29bfe;
-            padding: 10px;
-            border-radius: 8px;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 0 15px rgba(162, 155, 254, 0.3);
-            min-width: 200px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid #3b82f6;
+            padding: 16px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            min-width: 260px;
+            pointer-events: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
 
         .bar-container {
-            width: 100%; height: 8px; background: #2d3436;
-            border-radius: 4px; margin-top: 4px; overflow: hidden; border: 1px solid white;
+            width: 100%; height: 16px; background: #334155;
+            border-radius: 8px; margin-top: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
-        .bar-fill { height: 100%; background: #0984e3; transition: width 0.3s ease-out; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.5s ease-in-out; }
 
         .dialog-box {
-            background: rgba(255, 255, 255, 0.95);
-            border: 4px solid #6c5ce7;
-            border-radius: 12px;
+            background: white;
+            border: 4px solid #3b82f6;
+            border-radius: 20px;
             padding: 20px;
-            margin-bottom: 80px;
+            margin-bottom: 120px; 
             pointer-events: auto;
             display: none;
             flex-direction: row;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            max-width: 650px;
             width: 90%;
             align-self: center;
-            animation: slideUp 0.3s ease-out;
+            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .doodles-portrait {
-            font-size: 50px; background: #a29bfe; border-radius: 50%;
-            width: 70px; height: 70px; display: flex; justify-content: center;
-            align-items: center; border: 3px solid #6c5ce7; flex-shrink: 0;
+            font-size: 50px; background: #eff6ff; border-radius: 50%;
+            width: 80px; height: 80px; display: flex; justify-content: center;
+            align-items: center; border: 4px solid #3b82f6; flex-shrink: 0;
         }
 
-        .dialog-content { flex: 1; color: #2d3436; }
-        .dialog-name { font-weight: 800; color: #6c5ce7; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 2px; }
-        .dialog-text { font-size: 1rem; line-height: 1.3; font-weight: 600; }
+        .dialog-content { flex: 1; color: #1e293b; }
+        .dialog-name { font-weight: 800; color: #2563eb; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .dialog-text { font-size: 1.15rem; line-height: 1.4; font-weight: 600; margin-top: 4px; }
 
         .next-btn {
-            background: #6c5ce7; color: white; border: none;
-            padding: 8px 16px; border-radius: 20px; cursor: pointer;
-            font-weight: bold; margin-top: 8px; float: right; pointer-events: auto;
+            background: #2563eb; color: white; border: none;
+            padding: 10px 24px; border-radius: 24px; cursor: pointer;
+            font-weight: bold; margin-top: 12px; float: right;
+            transition: transform 0.2s;
         }
+        .next-btn:hover { transform: scale(1.05); }
 
         .controls-area {
-            position: absolute; bottom: 20px; left: 0; width: 100%;
-            display: flex; justify-content: space-between; padding: 0 40px; pointer-events: none;
+            position: absolute; bottom: 30px; right: 30px;
+            display: flex; gap: 20px; pointer-events: none;
         }
 
         .action-btn {
             width: 80px; height: 80px; border-radius: 50%;
-            background: rgba(255,255,255,0.2); border: 2px solid white;
+            background: rgba(255,255,255,0.2); border: 3px solid white;
             display: flex; justify-content: center; align-items: center;
-            font-size: 32px; backdrop-filter: blur(4px); cursor: pointer;
-            pointer-events: auto; transition: transform 0.1s, background-color 0.2s; position: relative;
+            font-size: 32px; backdrop-filter: blur(10px); cursor: pointer;
+            pointer-events: auto; transition: all 0.2s;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
         }
-       
-        .action-btn.active {
-            background: #2ecc71; border-color: #27ae60; box-shadow: 0 0 20px #2ecc71; transform: scale(1.1);
-        }
-        .action-btn:active { transform: scale(0.9); }
-
-        .spell-btn {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            border-color: #a29bfe;
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
-        }
-       
-        .game-btn {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            border-color: #d35400;
-            box-shadow: 0 0 20px rgba(230, 126, 34, 0.5);
-            font-size: 24px;
-        }
+        
+        .action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.4); }
 
         .minimap {
-            position: absolute; top: 20px; right: 20px; width: 120px; height: 120px;
-            background: rgba(0,0,0,0.5); border: 2px solid white; border-radius: 4px; opacity: 0.9;
+            position: absolute; top: 20px; right: 20px; width: 160px; height: 160px;
+            background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(59, 130, 246, 0.5); border-radius: 16px;
         }
 
         .notification {
-            position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
-            background: #fdcb6e; color: #d63031; padding: 10px 20px;
-            border-radius: 8px; font-weight: bold; display: none; z-index: 100;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
-        }
-
-        .arrow-container {
-            position: absolute; top: 80px; width: 100%;
-            display: flex; justify-content: center; pointer-events: none; z-index: 40;
-        }
-       
-        #questArrow {
-            font-size: 48px; color: #f1c40f; filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.8));
-            display: inline-block; transition: transform 0.1s linear;
-        }
-       
-        .arrow-label {
-            position: absolute; top: 50px; font-family: var(--pixel-font);
-            font-size: 14px; color: #f1c40f; text-shadow: 1px 1px 0 #000;
-            background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px;
+            position: absolute; top: 120px; left: 50%; transform: translateX(-50%);
+            background: #2563eb; color: white; padding: 14px 28px;
+            border-radius: 40px; font-weight: bold; display: none; z-index: 100;
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
         .action-hint {
             position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, 40px); background: rgba(0,0,0,0.8);
-            color: #2ecc71; padding: 8px 16px; border-radius: 20px;
-            font-weight: bold; font-family: var(--main-font); border: 2px solid #2ecc71;
-            display: none; z-index: 50; text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
-            animation: bounceIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translate(-50%, 60px); background: #10b981;
+            color: white; padding: 10px 20px; border-radius: 30px;
+            font-weight: bold; display: none; z-index: 50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .crosshair {
-            position: absolute; top: 50%; left: 50%;
-            width: 20px; height: 20px;
-            transform: translate(-50%, -50%); pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.1s;
-        }
-        .crosshair::before, .crosshair::after {
-            content: ''; position: absolute; background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 2px black; transition: background 0.2s;
-        }
-        .crosshair::before { width: 2px; height: 20px; }
-        .crosshair::after { width: 20px; height: 2px; }
-        .crosshair.active::before, .crosshair.active::after { background: #2ecc71; }
-
-        /* MINIGAME MENU & GAMES */
-        .overlay-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 60;
-        }
-       
-        .game-card {
-            background: #1e293b; border: 2px solid #475569; padding: 15px; margin: 10px;
-            border-radius: 10px; cursor: pointer; text-align: center; width: 200px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .game-card:hover { transform: translateY(-5px); border-color: #3b82f6; }
-       
-        .minigame-container {
-            width: 300px; height: 300px; background: #0f172a;
-            border: 4px solid #3b82f6; border-radius: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative;
+        .entrance-hint {
+            position: absolute; top: 20%; left: 50%;
+            transform: translateX(-50%); background: rgba(0,0,0,0.7);
+            color: #fbbf24; padding: 8px 16px; border-radius: 8px;
+            font-weight: bold; display: none; border: 1px solid #fbbf24;
         }
 
-        /* Neon Pulse */
-        .pulse-track { width: 80%; height: 30px; background: #334155; border-radius: 15px; position: relative; overflow: hidden; }
-        .pulse-zone { position: absolute; left: 40%; width: 20%; height: 100%; background: #22c55e; }
-        .pulse-cursor { position: absolute; left: 0; width: 10px; height: 100%; background: #f43f5e; }
-
-        /* Arrow Flow */
-        .arrow-display { font-size: 60px; font-weight: bold; margin-bottom: 20px; }
-       
-        /* Zen Breath */
-        .breath-circle { width: 50px; height: 50px; border-radius: 50%; border: 4px solid #60a5fa; transition: width 0.1s, height 0.1s; }
-        .breath-target { position: absolute; width: 200px; height: 200px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; }
-
-        @keyframes bounceIn { from { transform: translate(-50%, 60px) scale(0.5); opacity: 0; } to { transform: translate(-50%, 40px) scale(1); opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .vignette {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 60%, black 140%);
-            pointer-events: none;
+        .guide-text {
+            color: #94a3b8; font-size: 0.75rem; margin-top: 8px; font-style: italic;
         }
+
+        @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <canvas id="gameCanvas"></canvas>
-    <div class="vignette"></div>
-    <div class="crosshair"></div>
-
+    
     <div class="ui-layer">
         <div class="flex justify-between w-full pointer-events-none">
             <div class="quest-box">
-                <div class="text-[10px] text-gray-300 font-bold uppercase">Focus Level</div>
-                <div class="bar-container"><div id="magicBar" class="bar-fill" style="width: 50%"></div></div>
-                <div id="questText" class="text-sm font-bold text-yellow-300 mt-1">Find a Major Class</div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Campus Credits</span>
+                    <span id="progressText" class="text-xs font-bold text-white">0/5</span>
+                </div>
+                <div class="bar-container">
+                    <div id="xpBar" class="bar-fill" style="width: 0%"></div>
+                </div>
+                <div class="mt-3">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">Current Quest</div>
+                    <div id="questText" class="text-sm font-bold text-yellow-400">Talk to Doodles to start!</div>
+                </div>
+                <div class="guide-text">Follow the white paths to the gray doors!</div>
             </div>
             <canvas id="minimapCanvas" class="minimap"></canvas>
         </div>
 
-        <div class="arrow-container">
-            <div id="questArrow">⬆️</div>
-            <div class="arrow-label">DESTINATION</div>
-        </div>
-
-        <div id="actionHint" class="action-hint">SPACE TO INTERACT</div>
-        <div id="notification" class="notification">Notification</div>
-
-        <!-- ARCADE MENU -->
-        <div id="arcadeMenu" class="overlay-screen">
-            <h1 class="text-4xl font-bold text-white mb-6">BRAIN TRAINING</h1>
-            <div class="flex flex-wrap justify-center">
-                <div class="game-card" onclick="startGame('pulse')">
-                    <div class="text-4xl mb-2">⚡</div>
-                    <div class="font-bold text-blue-300">Neon Pulse</div>
-                    <div class="text-xs text-gray-400">Hit SPACE in the green zone.</div>
-                </div>
-                <div class="game-card" onclick="startGame('flow')">
-                    <div class="text-4xl mb-2">⬆️</div>
-                    <div class="font-bold text-green-300">Arrow Flow</div>
-                    <div class="text-xs text-gray-400">Press the arrow keys shown.</div>
-                </div>
-                <div class="game-card" onclick="startGame('zen')">
-                    <div class="text-4xl mb-2">🧘</div>
-                    <div class="font-bold text-purple-300">Zen Breath</div>
-                    <div class="text-xs text-gray-400">Hold SPACE to expand circle.</div>
-                </div>
-            </div>
-            <button onclick="closeArcade()" class="mt-8 text-gray-400 underline hover:text-white">Close</button>
-        </div>
-
-        <!-- ACTIVE MINIGAME CONTAINER -->
-        <div id="activeGameOverlay" class="overlay-screen" style="background:rgba(0,0,0,0.8);">
-            <div id="gameContainer" class="minigame-container">
-                <!-- Content injected by JS -->
-            </div>
-            <div id="gameInstructions" class="text-white mt-4 font-bold text-xl"></div>
-            <button onclick="stopGame()" class="mt-4 text-red-400 text-sm border border-red-900 px-3 py-1 rounded">Exit Training</button>
-        </div>
+        <div id="actionHint" class="action-hint">READY TO INTERACT (SPACE)</div>
+        <div id="entranceHint" class="entrance-hint">🚪 ENTRANCE: Walk forward into the gray tile!</div>
+        <div id="notification" class="notification">Item Collected!</div>
 
         <div id="dialogBox" class="dialog-box">
-            <div class="doodles-portrait">🦊</div>
+            <div class="doodles-portrait" id="portrait">🦊</div>
             <div class="dialog-content">
-                <div class="dialog-name">Doodles</div>
+                <div id="dialogName" class="dialog-name">Doodles</div>
                 <div id="dialogText" class="dialog-text">...</div>
                 <button class="next-btn" onclick="advanceDialog()">NEXT ▶</button>
             </div>
         </div>
 
         <div class="controls-area">
-            <div class="hidden md:flex flex-col items-center justify-center opacity-50">
-                <div class="text-white text-xs mb-1">WASD / ARROWS to Move</div>
-                <div class="w-16 h-16 border-2 border-white rounded-full flex items-center justify-center">
-                    <span class="text-2xl">🕹️</span>
-                </div>
-            </div>
-            <div class="flex gap-4 ml-auto">
-                <button id="btnInteract" class="action-btn" onclick="interact()">💬<span class="text-[10px] block mt-1">SPACE</span></button>
-                <button class="action-btn spell-btn" onclick="castMagic()">✨</button>
-                <button class="action-btn game-btn" onclick="openArcade()">🎮</button>
-            </div>
+            <button class="action-btn" onclick="interact()">💬</button>
+            <button class="action-btn" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="interact()">🤚</button>
         </div>
     </div>
 </div>
 
 <script>
 /**
- * WITS UNIVERSITY: STORY & ARCADE EDITION
+ * WITS UNIVERSITY: NO-AI MAJORS EDITION
+ * FOCUS: ACCESSIBLE DOORWAYS AND PATHS
  */
 
 const canvas = document.getElementById('gameCanvas');
@@ -316,566 +203,323 @@ const ctx = canvas.getContext('2d');
 const miniCanvas = document.getElementById('minimapCanvas');
 const miniCtx = miniCanvas.getContext('2d');
 
-// --- ASSETS & CONFIG ---
 const RES_DIVISOR = 4;
 const MAP_SIZE = 20;
-const DAY_LENGTH = 60;
-const ROT_SPEED = 1.5;
 
-// --- MAP DATA ---
-const WORLD_MAP = [
-    [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4], // 0
-    [4,1,1,1,1,5,1,6,6,6,6,6,1,5,1,1,8,8,8,4], // 1
-    [4,1,0,0,1,5,6,0,0,0,0,0,6,5,8,0,0,0,8,4], // 2
-    [4,1,0,0,1,5,6,0,0,0,0,0,6,5,8,0,0,0,8,4], // 3
-    [4,1,1,3,1,5,6,6,3,6,6,6,6,5,1,1,3,1,1,4], // 4
-    [4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,4,4], // 5
-    [4,0,0,5,0,0,0,0,0,5,0,0,0,0,0,5,0,0,0,4], // 6
-    [4,7,7,5,0,4,4,4,0,5,0,4,4,4,0,5,2,2,2,4], // 7
-    [4,7,0,5,0,4,9,4,0,5,0,4,9,4,0,5,2,0,2,4], // 8
-    [4,7,7,5,0,4,4,4,0,5,0,4,4,4,0,5,2,2,2,4], // 9
-    [4,0,0,5,0,0,0,0,0,5,0,0,0,0,0,5,0,0,0,4], // 10
-    [4,0,0,5,0,0,0,0,0,5,0,0,0,0,0,5,0,0,0,4], // 11
-    [4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,4,4], // 12
-    [4,4,0,5,0,0,0,0,0,5,0,0,0,0,0,5,0,0,4,4], // 13
-    [4,8,8,5,8,0,0,0,0,5,0,0,0,0,8,5,8,8,8,4], // 14
-    [4,8,0,5,8,0,0,0,0,5,0,0,0,0,8,5,8,0,8,4], // 15
-    [4,8,8,5,8,0,0,0,0,5,0,0,0,0,8,5,8,8,8,4], // 16
-    [4,4,4,5,4,4,0,0,0,5,0,0,0,4,4,5,4,4,4,4], // 17
-    [4,4,4,5,4,4,4,0,0,5,0,0,4,4,4,5,4,4,4,4], // 18
-    [4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4]  // 19
-];
-
-// --- GAME STATE ---
-const state = {
-    mode: 'play',
-    player: { x: 9.5, y: 17.5, dir: -Math.PI/2, plane: { x: 0.66, y: 0 } },
-    input: { forward: false, backward: false, left: false, right: false },
-    dialogQueue: [],
-    isDialogActive: false,
-    quest: 0,
-    bob: 0,
-    time: 0.2,
-    stars: [],
-    lastTime: 0,
-    magicType: null,
-    magic: 50,
-    maxMagic: 100,
-    currentTarget: null,
-   
-    // Minigame State
-    gameType: null,
-    gameData: {},
-
-    sprites: [
-        { type: 'label', text: "ARCHIVES", x: 9.5, y: 4.5, z: 2.0, scale: 1 },
-        { type: 'label', text: "TECH HALL", x: 2.5, y: 8.5, z: 1.5, scale: 0.8 },
-        { type: 'label', text: "OBSERVATORY", x: 17.5, y: 8.5, z: 1.5, scale: 0.8 },
-        { type: 'label', text: "ELEMENTS", x: 2.5, y: 2.5, z: 1.5, scale: 0.8 },
-        { type: 'label', text: "ALCHEMY", x: 17.5, y: 2.5, z: 1.5, scale: 0.8 },
-        { type: 'label', text: "GARDENS", x: 2.5, y: 15.5, z: 1.5, scale: 0.8 },
-
-        { type: 'villain', name: 'The Blur', sprite: '🌫️', x: 9.5, y: 2.5, z: 0, scale: 2, dialog: ["I am Academic Burnout!", "You cannot focus on Finals!"] },
-        { type: 'fog', x: 9.5, y: 4.5, sprite: '☁️', scale: 4.0, hp: 1 },
-
-        { type: 'major', name: 'Technomancy', sprite: '💾', x: 2.5, y: 8.5, z: 0.2, scale: 1.0, taken: false },
-        { type: 'major', name: 'Astronomy', sprite: '🌟', x: 17.5, y: 8.5, z: 0.2, scale: 1.0, taken: false },
-        { type: 'major', name: 'Elements', sprite: '🔥', x: 2.5, y: 2.5, z: 0.2, scale: 1.0, taken: false },
-        { type: 'major', name: 'Alchemy', sprite: '🧪', x: 16.5, y: 2.5, z: 0.2, scale: 1.0, taken: false },
-        { type: 'major', name: 'Nature', sprite: '🌿', x: 2.5, y: 15.5, z: 0.2, scale: 1.0, taken: false },
-
-        { type: 'doodles', sprite: '🦊', x: 9.5, y: 16.5, z: 0, scale: 0.8 },
-        // Professor Pocus (Hidden initially)
-        { type: 'npc', name: 'Prof. Pocus', sprite: '🧙‍♂️', x: 9.5, y: 3.5, z: 0, scale: 1.0, hidden: true, dialog: ["Excellent work clearing the fog!", "But The Blur is still out there.", "Use the Training Menu to build focus!"] }
-    ],
-    spells: { clarity: false }
+const THEMES = {
+    1: { main: '#8b5cf6', side: '#6d28d9', name: 'Quantum Physics' },
+    2: { main: '#10b981', side: '#047857', name: 'Deep-Sea Ecology' },
+    3: { main: '#3b82f6', side: '#1d4ed8', name: 'Astro-Engineering' },
+    4: { main: '#475569', side: '#1e293b', name: 'Boundary' },
+    5: { main: '#334155', side: '#1e293b', name: 'Doorway' }, 
+    6: { main: '#f97316', side: '#c2410c', name: 'Experimental Arts' },
+    7: { main: '#eab308', side: '#a16207', name: 'History of Sci' },
+    8: { main: '#ef4444', side: '#b91c1c', name: 'Main Library' },
+    9: { main: '#ec4899', side: '#be185d', name: 'Music Production' },
+    10: { main: '#ffffff', side: '#cbd5e1', name: 'Guide Strip' } 
 };
 
-// --- INITIALIZATION ---
+// WORLD MAP updated to ensure paths lead DIRECTLY to doorways (5)
+const WORLD_MAP = [
+    [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+    [4,1,1,1,1,0,1,6,6,6,6,6,1,0,8,8,8,8,8,4],
+    [4,1,0,0,1,0,6,0,0,0,0,0,6,0,8,0,0,0,8,4],
+    [4,1,0,0,5,10,5,0,0,0,0,0,6,0,8,0,0,0,8,4], // Entry to Quantum (1,3) & Arts (6,3)
+    [4,1,1,1,1,10,6,6,6,5,6,6,6,0,1,1,1,1,1,4], // Entry to Arts (9,4)
+    [4,0,0,0,0,10,0,0,0,10,0,0,0,10,0,0,0,0,0,4],
+    [4,0,0,0,0,10,0,0,0,10,0,0,0,10,0,0,0,0,0,4],
+    [4,7,7,5,10,10,10,10,10,10,10,10,10,10,5,2,2,2,2,4], // Path connecting History (3,7) and Sea (14,7)
+    [4,7,0,0,0,0,9,0,0,10,0,0,3,0,0,0,2,0,0,4],
+    [4,7,7,7,5,10,5,4,4,10,4,4,5,10,5,2,2,2,2,4], // Entry to Music (6,9) and Astro (12,9)
+    [4,0,0,0,0,10,10,10,10,10,10,10,10,10,0,0,0,0,0,4],
+    [4,0,0,0,0,10,0,0,0,10,0,0,0,10,0,0,0,0,0,4],
+    [4,4,4,0,0,10,0,0,0,10,0,0,0,10,0,0,0,4,4,4],
+    [4,4,0,0,0,10,0,0,0,10,0,0,0,10,0,0,0,0,4,4],
+    [4,8,8,5,10,10,0,0,0,10,0,0,0,10,10,5,8,8,8,4], // Library Entry (3,14)
+    [4,8,0,0,0,10,0,0,0,10,0,0,0,10,0,0,0,0,8,4],
+    [4,8,8,8,8,10,0,0,0,10,0,0,0,10,8,8,8,8,8,4],
+    [4,4,4,0,0,10,0,0,0,10,0,0,0,10,0,0,0,4,4,4],
+    [4,4,4,0,0,10,10,10,10,10,10,10,10,10,0,0,0,4,4,4],
+    [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]
+];
+
+const state = {
+    player: { x: 9.5, y: 17.5, dir: -Math.PI/2, plane: { x: 0.66, y: 0 } },
+    input: { forward: false, backward: false, left: false, right: false },
+    dialogQueue: [], isDialogActive: false,
+    currentTarget: null,
+    itemsCollected: 0,
+    totalItems: 5,
+    sprites: [
+        { id: 'doodles', type: 'npc', name: 'Doodles', portrait: '🦊', sprite: '🦊', x: 9.5, y: 15.5, dialog: ["I've opened up the paths for you!", "The white guide strips on the floor now lead directly to the gray doors.", "Just follow the white path until you hit a dark gray wall, then walk through it!"] },
+        { id: 'sign', type: 'npc', name: 'Info Sign', portrait: '🪧', sprite: '🪧', x: 7.5, y: 11.5, dialog: ["DOOR GUIDE: Follow white paths to reach gray doors.", "Physics: North-West", "Arts: North", "History: West", "Engineering: East", "Sea Ecology: Far East"] },
+        { id: 'bot', type: 'npc', name: 'Guide Bot', portrait: '🤖', sprite: '🤖', x: 5.5, y: 5.5, dialog: ["The Blue building (Astro-Engineering) door is now right on the path!", "Quantum Physics (Purple) is much easier to reach now too."] },
+        { type: 'item', name: 'Atomic Core', sprite: '⚛️', x: 2.5, y: 2.5 },
+        { type: 'item', name: 'History Log', sprite: '📖', x: 2.5, y: 8.5 },
+        { type: 'item', name: 'Golden Brush', sprite: '🖌️', x: 8.5, y: 2.5 },
+        { type: 'item', name: 'Moon Stone', sprite: '🌑', x: 12.5, y: 8.5 },
+        { type: 'item', name: 'Ocean Pearl', sprite: '⚪', x: 17.5, y: 8.5 }
+    ]
+};
+
 function init() {
     resize();
-    generateStars();
     window.addEventListener('resize', resize);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    setupTouch();
+    window.addEventListener('keydown', e => handleKey(e, true));
+    window.addEventListener('keyup', e => handleKey(e, false));
+    
+    setTimeout(() => {
+        queueDialog("Doodles", "I fixed the campus! Follow the white paths to find the doors.");
+        updateQuest("Follow paths to find Campus Credits");
+    }, 500);
 
-    queueDialog("Doodles", "Welcome to the Expanded Campus!");
-    queueDialog("Doodles", "I'm Doodles, your RA.");
-    queueDialog("Doodles", "Go to a colored beam and press SPACE to pick a Major!");
-
-    updateUI();
     requestAnimationFrame(gameLoop);
 }
 
-function generateStars() {
-    for(let i=0; i<150; i++) {
-        state.stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight / 2, size: Math.random() * 2, blink: Math.random() });
+function updateQuest(txt) {
+    document.getElementById('questText').innerText = txt;
+}
+
+function updateProgress() {
+    const percent = (state.itemsCollected / state.totalItems) * 100;
+    document.getElementById('xpBar').style.width = percent + '%';
+    document.getElementById('progressText').innerText = `${state.itemsCollected}/${state.totalItems}`;
+    
+    if (state.itemsCollected >= state.totalItems) {
+        updateQuest("Return to Doodles to graduate!");
+    } else {
+        updateQuest(`Find Campus Credits (${state.itemsCollected}/${state.totalItems})`);
     }
+}
+
+function handleKey(e, isDown) {
+    if (e.key === 'w' || e.code === 'ArrowUp') state.input.forward = isDown;
+    if (e.key === 's' || e.code === 'ArrowDown') state.input.backward = isDown;
+    if (e.key === 'a' || e.code === 'ArrowLeft') state.input.left = isDown;
+    if (e.key === 'd' || e.code === 'ArrowRight') state.input.right = isDown;
+    if (isDown && e.code === 'Space') interact();
 }
 
 function resize() {
     canvas.width = Math.ceil(window.innerWidth / RES_DIVISOR);
     canvas.height = Math.ceil(window.innerHeight / RES_DIVISOR);
-    miniCanvas.width = 120;
-    miniCanvas.height = 120;
 }
 
-function handleKeyDown(e) {
-    if (state.mode === 'minigame') {
-        if (e.code === 'Space') {
-            if (state.gameType === 'pulse') handlePulseInput();
-            if (state.gameType === 'zen') state.gameData.holding = true;
-        }
-        // Arrow Flow Inputs
-        if (state.gameType === 'flow') handleFlowInput(e.key);
-        return;
+function gameLoop() {
+    if (!state.isDialogActive) {
+        updateMovement();
+        checkInteractions();
     }
-    if (e.code === 'ArrowUp' || e.key === 'w') state.input.forward = true;
-    if (e.code === 'ArrowDown' || e.key === 's') state.input.backward = true;
-    if (e.code === 'ArrowLeft' || e.key === 'a') state.input.left = true;
-    if (e.code === 'ArrowRight' || e.key === 'd') state.input.right = true;
-    if (e.code === 'Space') interact();
-}
-
-function handleKeyUp(e) {
-    if (state.mode === 'minigame' && state.gameType === 'zen' && e.code === 'Space') {
-        state.gameData.holding = false;
-        checkZenResult();
-    }
-    if (e.code === 'ArrowUp' || e.key === 'w') state.input.forward = false;
-    if (e.code === 'ArrowDown' || e.key === 's') state.input.backward = false;
-    if (e.code === 'ArrowLeft' || e.key === 'a') state.input.left = false;
-    if (e.code === 'ArrowRight' || e.key === 'd') state.input.right = false;
-}
-
-function setupTouch() {
-    canvas.addEventListener('touchstart', (e) => {
-        if(state.mode === 'minigame') {
-            // Simple touch handler for mobile minigames
-            if(state.gameType==='pulse') handlePulseInput();
-            if(state.gameType==='zen') state.gameData.holding = true;
-            return;
-        }
-        const x = e.touches[0].clientX; const y = e.touches[0].clientY;
-        const w = window.innerWidth; const h = window.innerHeight;
-        if (y > h * 0.7) {
-            if (x < w * 0.3) state.input.left = true;
-            else if (x > w * 0.7) state.input.right = true;
-            else state.input.backward = true;
-        } else { state.input.forward = true; }
-    });
-    canvas.addEventListener('touchend', () => {
-        if(state.mode === 'minigame' && state.gameType==='zen') {
-            state.gameData.holding = false; checkZenResult();
-        }
-        state.input.forward = state.input.backward = state.input.left = state.input.right = false;
-    });
-}
-
-function gameLoop(timestamp) {
-    const dt = Math.min((timestamp - state.lastTime) / 1000, 0.1);
-    state.lastTime = timestamp;
-
-    if (state.mode === 'minigame') {
-        runMinigameLoop(dt);
-    } else if (!state.isDialogActive) {
-        state.time += dt * (1/DAY_LENGTH);
-        if (state.time > 1) state.time = 0;
-        updateMovement(dt);
-        updateQuestArrow();
-        scanForInteraction();
-    }
-   
-    if (state.mode !== 'minigame') {
-        renderRaycast();
-        renderMinimap();
-    }
-   
+    render();
+    renderMinimap();
     requestAnimationFrame(gameLoop);
 }
 
-// --- ARCADE & MINIGAME SYSTEM ---
-
-function openArcade() {
-    if(state.mode === 'minigame') return;
-    document.getElementById('arcadeMenu').style.display = 'flex';
-}
-
-function closeArcade() {
-    document.getElementById('arcadeMenu').style.display = 'none';
-}
-
-function startGame(type) {
-    closeArcade();
-    state.mode = 'minigame';
-    state.gameType = type;
-    document.getElementById('activeGameOverlay').style.display = 'flex';
-    const container = document.getElementById('gameContainer');
-    const instr = document.getElementById('gameInstructions');
-    container.innerHTML = '';
-
-    if (type === 'pulse') {
-        instr.innerText = "Press SPACE in Green Zone";
-        state.gameData = { pos: 0, dir: 1, speed: 2 };
-        container.innerHTML = `<div class="pulse-track"><div class="pulse-zone"></div><div id="pulseCursor" class="pulse-cursor"></div></div>`;
-    } else if (type === 'flow') {
-        instr.innerText = "Press the Arrow Shown";
-        state.gameData = { target: 'ArrowUp', timer: 2.0 };
-        container.innerHTML = `<div id="flowArrow" class="arrow-display">⬆️</div>`;
-        pickNewFlowArrow();
-    } else if (type === 'zen') {
-        instr.innerText = "Hold SPACE to match Circle";
-        state.gameData = { size: 50, holding: false };
-        container.innerHTML = `<div class="breath-target"></div><div id="zenCircle" class="breath-circle"></div>`;
-    }
-}
-
-function stopGame() {
-    state.mode = 'play';
-    document.getElementById('activeGameOverlay').style.display = 'none';
-    state.input.forward = false;
-}
-
-function runMinigameLoop(dt) {
-    if (state.gameType === 'pulse') {
-        state.gameData.pos += state.gameData.speed * state.gameData.dir * dt;
-        if (state.gameData.pos > 1) { state.gameData.pos = 1; state.gameData.dir = -1; }
-        if (state.gameData.pos < 0) { state.gameData.pos = 0; state.gameData.dir = 1; }
-        const cursor = document.getElementById('pulseCursor');
-        if(cursor) cursor.style.left = (state.gameData.pos * 90) + '%';
-    }
-    else if (state.gameType === 'zen') {
-        const circle = document.getElementById('zenCircle');
-        if (state.gameData.holding) state.gameData.size += 150 * dt;
-        else state.gameData.size -= 100 * dt;
-        if (state.gameData.size < 20) state.gameData.size = 20;
-        if (state.gameData.size > 280) state.gameData.size = 280;
-        if(circle) {
-            circle.style.width = state.gameData.size + 'px';
-            circle.style.height = state.gameData.size + 'px';
+function updateMovement() {
+    const p = state.player, speed = 0.08, rot = 0.05;
+    const oldX = p.x, oldY = p.y;
+    
+    if (state.input.forward) { p.x += Math.cos(p.dir) * speed; p.y += Math.sin(p.dir) * speed; }
+    if (state.input.backward) { p.x -= Math.cos(p.dir) * speed; p.y -= Math.sin(p.dir) * speed; }
+    if (state.input.left) rotatePlayer(-rot);
+    if (state.input.right) rotatePlayer(rot);
+    
+    const gridX = Math.floor(p.x);
+    const gridY = Math.floor(p.y);
+    
+    if (gridY < 0 || gridY >= WORLD_MAP.length || gridX < 0 || gridX >= WORLD_MAP[0].length) {
+        p.x = oldX; p.y = oldY;
+    } else {
+        const tile = WORLD_MAP[gridY][gridX];
+        // Only block if it's a solid wall and NOT a doorway (5) or path (10) or air (0)
+        if (tile > 0 && tile !== 10 && tile !== 5) {
+            p.x = oldX; p.y = oldY;
         }
     }
 }
 
-// -- Pulse Logic --
-function handlePulseInput() {
-    const pos = state.gameData.pos;
-    if (pos >= 0.35 && pos <= 0.65) winMinigame();
-    else showNotification("Missed!");
-}
-
-// -- Flow Logic --
-function pickNewFlowArrow() {
-    const options = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-    const emojis = {'ArrowUp':'⬆️', 'ArrowDown':'⬇️', 'ArrowLeft':'⬅️', 'ArrowRight':'➡️'};
-    const choice = options[Math.floor(Math.random()*4)];
-    state.gameData.target = choice;
-    const el = document.getElementById('flowArrow');
-    if(el) el.innerText = emojis[choice];
-}
-
-function handleFlowInput(key) {
-    if (key === state.gameData.target) winMinigame();
-    else {
-        showNotification("Wrong Key!");
-        pickNewFlowArrow();
-    }
-}
-
-// -- Zen Logic --
-function checkZenResult() {
-    // Target is 200px (css class breath-target)
-    const s = state.gameData.size;
-    if (s > 180 && s < 220) winMinigame();
-    else showNotification("Size Mismatch");
-}
-
-function winMinigame() {
-    state.magic = Math.min(state.maxMagic, state.magic + 30);
-    updateUI();
-    showNotification("SUCCESS! Focus +30");
-    // Celebrate
-    const container = document.getElementById('gameContainer');
-    container.style.borderColor = '#2ecc71';
-    setTimeout(() => container.style.borderColor = '#3b82f6', 300);
-   
-    if (state.gameType === 'flow') pickNewFlowArrow(); // Continue flow
-}
-
-// --- INTERACTION LOGIC ---
-function scanForInteraction() {
+function rotatePlayer(r) {
     const p = state.player;
-    let closest = null;
-    let closestDist = Infinity;
+    p.dir += r;
+    const oldPlaneX = p.plane.x;
+    p.plane.x = p.plane.x * Math.cos(r) - p.plane.y * Math.sin(r);
+    p.plane.y = oldPlaneX * Math.sin(r) + p.plane.y * Math.cos(r);
+}
 
-    state.sprites.forEach(s => {
-        if (s.taken || s.type === 'label' || s.type === 'fog' || s.hidden) return;
-        const dist = Math.hypot(s.x - p.x, s.y - p.y);
-        if (dist < 4.0 && dist < closestDist) {
-            closest = { type: 'sprite', obj: s }; closestDist = dist;
+function render() {
+    const w = canvas.width, h = canvas.height, p = state.player;
+    if (!w || !h) return;
+
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, w, h/2);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, h/2, w, h/2);
+    
+    const zBuffer = new Array(w);
+    let seenDoor = false;
+    
+    for (let x = 0; x < w; x++) {
+        const camX = 2 * x / w - 1;
+        const rDirX = Math.cos(p.dir) + p.plane.x * camX;
+        const rDirY = Math.sin(p.dir) + p.plane.y * camX;
+        
+        let mX = Math.floor(p.x), mY = Math.floor(p.y);
+        const dX = Math.abs(1/rDirX), dY = Math.abs(1/rDirY);
+        
+        let sX, sY, sdX, sdY;
+        if (rDirX < 0) { sX = -1; sdX = (p.x - mX) * dX; } else { sX = 1; sdX = (mX + 1 - p.x) * dX; }
+        if (rDirY < 0) { sY = -1; sdY = (p.y - mY) * dY; } else { sY = 1; sdY = (mY + 1 - p.y) * dY; }
+        
+        let hit = 0, side, tile;
+        let raySteps = 0;
+        while(hit === 0 && raySteps < 50) {
+            if (sdX < sdY) { sdX += dX; mX += sX; side = 0; } else { sdY += dY; mY += sY; side = 1; }
+            if (mY < 0 || mY >= WORLD_MAP.length || mX < 0 || mX >= WORLD_MAP[0].length) {
+                hit = 1; tile = 4;
+            } else if (WORLD_MAP[mY][mX] > 0 && WORLD_MAP[mY][mX] !== 10) { 
+                hit = 1; tile = WORLD_MAP[mY][mX]; 
+            }
+            raySteps++;
         }
-    });
+        
+        let dist = (side === 0) ? (mX - p.x + (1 - sX) / 2) / rDirX : (mY - p.y + (1 - sY) / 2) / rDirY;
+        zBuffer[x] = dist;
+        
+        if (tile === 5 && dist < 2.5) seenDoor = true;
 
-    const px = Math.floor(p.x); const py = Math.floor(p.y);
-    for(let y = py-1; y <= py+1; y++) {
-        for(let x = px-1; x <= px+1; x++) {
-            if (y>=0 && y<MAP_SIZE && x>=0 && x<MAP_SIZE) {
-                if (WORLD_MAP[y][x] === 3) {
-                    const dist = Math.hypot((x + 0.5) - p.x, (y + 0.5) - p.y);
-                    if (dist < 2.5 && dist < closestDist) {
-                        closest = { type: 'door', x: x, y: y }; closestDist = dist;
-                    }
+        const lh = Math.floor(h / dist);
+        const theme = THEMES[tile] || THEMES[4];
+        ctx.fillStyle = side === 1 ? theme.side : theme.main;
+        
+        ctx.globalAlpha = Math.min(1, 10 / dist);
+        ctx.fillRect(x, h/2 - lh/2, 1, lh);
+        ctx.globalAlpha = 1;
+    }
+    
+    document.getElementById('entranceHint').style.display = seenDoor ? 'block' : 'none';
+    renderSprites(zBuffer);
+}
+
+function renderSprites(zBuffer) {
+    const w = canvas.width, h = canvas.height, p = state.player;
+    const sorted = [...state.sprites].sort((a,b) => Math.hypot(b.x - p.x, b.y - p.y) - Math.hypot(a.x - p.x, a.y - p.y));
+
+    sorted.forEach(s => {
+        if (s.hidden) return;
+        const sx = s.x - p.x, sy = s.y - p.y;
+        const invDet = 1 / (p.plane.x * Math.sin(p.dir) - Math.cos(p.dir) * p.plane.y);
+        const tx = invDet * (Math.sin(p.dir) * sx - Math.cos(p.dir) * sy);
+        const ty = invDet * (-p.plane.y * sx + p.plane.x * sy);
+        
+        if (ty > 0.1) {
+            const scX = Math.floor((w/2) * (1 + tx/ty));
+            const sh = Math.abs(Math.floor(h/ty));
+            if (scX >= 0 && scX < w && ty < zBuffer[scX]) {
+                ctx.font = `${sh * 0.8}px serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText(s.sprite, scX, h/2 + sh/3);
+                
+                if (s.type === 'item' || s.type === 'npc') {
+                    ctx.font = `${sh * 0.15}px var(--main-font)`;
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(s.name, scX, h/2 - sh/2);
                 }
             }
         }
-    }
+    });
+}
 
+function checkInteractions() {
+    const p = state.player;
+    let closest = null;
+    let minDist = 1.8;
+    
+    state.sprites.forEach(s => {
+        if (s.hidden) return;
+        const d = Math.hypot(s.x - p.x, s.y - p.y);
+        if (d < minDist) { closest = s; minDist = d; }
+    });
+    
     state.currentTarget = closest;
-    const hintBox = document.getElementById('actionHint');
-    const interactBtn = document.getElementById('btnInteract');
-    const crosshair = document.querySelector('.crosshair');
-
-    if (state.currentTarget) {
-        let msg = "";
-        if (state.currentTarget.type === 'sprite') {
-            const s = state.currentTarget.obj;
-            if(s.type === 'major') msg = `PICK ${s.name}`;
-            else if(s.type === 'npc') msg = "TALK";
-            else if(s.type === 'villain') msg = "CONFRONT";
-            else msg = "INTERACT";
-        } else { msg = "OPEN DOOR"; }
-        hintBox.innerText = `[SPACE] ${msg}`;
-        hintBox.style.display = 'block';
-        interactBtn.classList.add('active');
-        crosshair.classList.add('active');
-        crosshair.style.transform = 'translate(-50%, -50%) scale(1.5)';
-    } else {
-        hintBox.style.display = 'none';
-        interactBtn.classList.remove('active');
-        crosshair.classList.remove('active');
-        crosshair.style.transform = 'translate(-50%, -50%) scale(1)';
-    }
+    document.getElementById('actionHint').style.display = closest ? 'block' : 'none';
 }
 
 function interact() {
-    if (state.isDialogActive || state.mode === 'minigame') return;
-   
-    if (state.currentTarget) {
-        if (state.currentTarget.type === 'door') {
-            const {x, y} = state.currentTarget;
-            WORLD_MAP[y][x] = 5; showNotification("Door Opened!");
-        } else if (state.currentTarget.type === 'sprite') {
-            const s = state.currentTarget.obj;
-            if (s.type === 'major') {
-                s.taken = true; state.magicType = s.name.toLowerCase(); state.spells.clarity = true;
-                state.sprites.forEach(sp => { if(sp.type === 'major') sp.taken = true; });
-                showNotification(`Major Declared: ${s.name}!`);
-                queueDialog("Doodles", `You chose the School of ${s.name}!`);
-                queueDialog("Doodles", "Use your new abilities to clear the Burnout Fog at the Archives (North).");
-                state.quest = 2; document.getElementById('questText').innerText = "Clear Burnout Fog (North)";
-            } else if (s.dialog) {
-                s.dialog.forEach(line => queueDialog(s.name, line));
-            }
+    if (!state.currentTarget || state.isDialogActive) return;
+    const s = state.currentTarget;
+    if (s.type === 'npc') {
+        document.getElementById('portrait').innerText = s.portrait;
+        s.dialog.forEach(line => queueDialog(s.name, line));
+        
+        if (s.id === 'doodles' && state.itemsCollected >= state.totalItems) {
+            queueDialog("Doodles", "Incredible! You've mastered all the departments.");
+            queueDialog("Doodles", "You are officially a graduate of Wits University!");
+            updateQuest("Graduated!");
         }
-    } else showNotification("Move closer to interact!");
-}
-
-function castMagic() {
-    if (state.isDialogActive || state.mode === 'minigame') return;
-    if (state.magic < 25) { showNotification("Low Focus! Use Game Controller to Recharge."); openArcade(); return; }
-    if (!state.spells.clarity) { queueDialog("Doodles", "You need to Declare a Major first!"); return; }
-   
-    let fx = "✨";
-    if(state.magicType === 'elements') fx = "🔥";
-    else if(state.magicType === 'technomancy') fx = "👾";
-
-    state.magic -= 25; updateUI();
-    showNotification(`${fx} Casting Magic! ${fx}`);
-   
-    const p = state.player;
-    const fog = state.sprites.find(s => s.type === 'fog' && Math.hypot(s.x - p.x, s.y - p.y) < 5.0);
-   
-    if (fog) {
-        state.sprites = state.sprites.filter(s => s !== fog);
-        showNotification("Burnout Cleared!");
-        if (!state.sprites.find(s => s.type === 'fog') && state.quest === 2) {
-            state.quest = 3; document.getElementById('questText').innerText = "Confront The Blur";
-            queueDialog("The Blur", "Impossible! How did you study so fast?!");
-        }
-    } else {
-        // Check for Blur Confrontation
-        const blur = state.sprites.find(s => s.name === 'The Blur' && Math.hypot(s.x - p.x, s.y - p.y) < 5.0);
-        if (blur && state.quest === 3) {
-            blur.scale = 0; // Hide/Shrink blur
-            // Reveal Professor
-            const prof = state.sprites.find(s => s.name === 'Prof. Pocus');
-            if(prof) prof.hidden = false;
-           
-            queueDialog("The Blur", "NOOO! Focused effort... my only weakness!");
-            queueDialog("Doodles", "You did it! The Blur is gone.");
-            queueDialog("Prof. Pocus", "Brilliant work, student!");
-            state.quest = 4;
-            document.getElementById('questText').innerText = "Talk to Professor Pocus";
-        } else {
-            showNotification("No fog nearby!");
-        }
+    } else if (s.type === 'item') {
+        s.hidden = true;
+        state.itemsCollected++;
+        showNotification(`Collected: ${s.name}`);
+        updateProgress();
+        state.currentTarget = null;
     }
 }
 
-// ... Rendering functions kept identical for brevity, ensuring visual consistency ...
-// RENDER RAYCAST
-function renderRaycast() {
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.fillStyle = getSkyColor(); ctx.fillRect(0, 0, w, h / 2);
-    ctx.fillStyle = 'white';
-    state.stars.forEach(star => {
-        let sx = (star.x - state.player.dir * 100) % w; if (sx < 0) sx += w;
-        let alpha = Math.abs(Math.sin(Date.now()/500 + star.blink));
-        ctx.globalAlpha = alpha * 0.8; ctx.fillRect(sx, star.y, star.size, star.size);
-    });
-    ctx.globalAlpha = 1.0;
-    const grad = ctx.createLinearGradient(0, h/2, 0, h);
-    grad.addColorStop(0, '#192a56'); grad.addColorStop(1, '#009432');
-    ctx.fillStyle = grad; ctx.fillRect(0, h/2, w, h/2);
-    const p = state.player; const zBuffer = new Array(w).fill(0);
-    for (let x = 0; x < w; x++) {
-        const cameraX = 2 * x / w - 1;
-        const rayDirX = Math.cos(p.dir) + p.plane.x * cameraX;
-        const rayDirY = Math.sin(p.dir) + p.plane.y * cameraX;
-        let mapX = Math.floor(p.x); let mapY = Math.floor(p.y);
-        let sideDistX, sideDistY;
-        const deltaDistX = Math.abs(1 / rayDirX); const deltaDistY = Math.abs(1 / rayDirY);
-        let perpWallDist; let stepX, stepY; let hit = 0; let side;
-        if (rayDirX < 0) { stepX = -1; sideDistX = (p.x - mapX) * deltaDistX; }
-        else { stepX = 1; sideDistX = (mapX + 1.0 - p.x) * deltaDistX; }
-        if (rayDirY < 0) { stepY = -1; sideDistY = (p.y - mapY) * deltaDistY; }
-        else { stepY = 1; sideDistY = (mapY + 1.0 - p.y) * deltaDistY; }
-        while (hit === 0) {
-            if (sideDistX < sideDistY) { sideDistX += deltaDistX; mapX += stepX; side = 0; }
-            else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
-            if (mapX < 0 || mapX >= MAP_SIZE || mapY < 0 || mapY >= MAP_SIZE) { hit = 1; }
-            else { if (WORLD_MAP[mapY][mapX] > 0 && WORLD_MAP[mapY][mapX] !== 5 && WORLD_MAP[mapY][mapX] !== 0) hit = 1; }
-        }
-        if (side === 0) perpWallDist = (mapX - p.x + (1 - stepX) / 2) / rayDirX;
-        else perpWallDist = (mapY - p.y + (1 - stepY) / 2) / rayDirY;
-        const lineHeight = Math.floor(h / perpWallDist);
-        let drawStart = -lineHeight / 2 + h / 2 + Math.sin(state.bob) * 5;
-        let tile = 4;
-        if (mapX >= 0 && mapX < MAP_SIZE && mapY >= 0 && mapY < MAP_SIZE) tile = WORLD_MAP[mapY][mapX];
-        let color = '#636e72';
-        if (tile === 6) color = '#8e44ad'; if (tile === 7) color = '#d35400';
-        if (tile === 8) color = '#27ae60'; if (tile === 1) color = '#c0392b';
-        if (tile === 2) color = '#2c3e50'; if (tile === 3) color = '#f1c40f';
-        if (tile === 4) color = '#16a085'; if (tile === 9) color = '#2980b9';
-        ctx.fillStyle = color; if (side === 1) ctx.globalAlpha = 0.7;
-        ctx.fillRect(x, drawStart, 1, lineHeight); ctx.globalAlpha = 1.0; zBuffer[x] = perpWallDist;
-        if (lineHeight / 2 + h / 2 + Math.sin(state.bob) * 5 < h) {
-             for (let y = lineHeight / 2 + h / 2 + Math.sin(state.bob) * 5 + 1; y < h; y+=2) {
-                const dist = h / (2.0 * y - h - (Math.sin(state.bob)*10));
-                const weight = dist / perpWallDist;
-                const currentFloorX = weight * mapX + (1.0 - weight) * p.x;
-                const currentFloorY = weight * mapY + (1.0 - weight) * p.y;
-                const fx = Math.floor(currentFloorX); const fy = Math.floor(currentFloorY);
-                if(fx >= 0 && fx < MAP_SIZE && fy >= 0 && fy < MAP_SIZE) {
-                    if(WORLD_MAP[fy][fx] === 5) { ctx.fillStyle = '#bdc3c7'; ctx.fillRect(x, y, 1, 2); }
-                }
-             }
-        }
-    }
-    state.sprites.sort((a, b) => ((p.x - b.x)**2 + (p.y - b.y)**2) - ((p.x - a.x)**2 + (p.y - a.y)**2));
-    const dirX = Math.cos(p.dir); const dirY = Math.sin(p.dir); const invDet = 1.0 / (p.plane.x * dirY - dirX * p.plane.y);
-    for (let sprite of state.sprites) {
-        if (sprite.taken || sprite.hidden) continue;
-        const spriteX = sprite.x - p.x; const spriteY = sprite.y - p.y;
-        const transformX = invDet * (dirY * spriteX - dirX * spriteY);
-        const transformY = invDet * (-p.plane.y * spriteX + p.plane.x * spriteY);
-        const spriteScreenX = Math.floor((w / 2) * (1 + transformX / transformY));
-        let dynScale = sprite.scale || 1;
-        if (sprite.type === 'fog') dynScale += Math.sin(Date.now() / 500) * 0.3;
-        const spriteHeight = Math.abs(Math.floor(h / transformY)) * dynScale;
-        const spriteTop = -spriteHeight / 2 + h / 2 + (Math.sin(state.bob)*5) + (sprite.z||0)*spriteHeight;
-        if (transformY > 0) {
-            const fontSize = Math.floor(spriteHeight);
-            ctx.font = `${fontSize}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            if (spriteScreenX > 0 && spriteScreenX < w && transformY < zBuffer[spriteScreenX]) {
-                if (sprite.type === 'label') {
-                    ctx.font = `bold ${Math.floor(fontSize * 0.5)}px monospace`;
-                    ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
-                    ctx.strokeText(sprite.text, spriteScreenX, spriteTop + spriteHeight/2);
-                    ctx.fillText(sprite.text, spriteScreenX, spriteTop + spriteHeight/2);
-                } else if (sprite.type === 'major') {
-                    const beamWidth = Math.abs(spriteHeight * 0.3);
-                    const beamX = spriteScreenX - beamWidth/2;
-                    let beamColor = 'rgba(255, 255, 0, 0.3)';
-                    if(sprite.name === 'Elements') beamColor = 'rgba(255, 69, 0, 0.4)';
-                    if(sprite.name === 'Psionics') beamColor = 'rgba(138, 43, 226, 0.4)';
-                    if(sprite.name === 'Technomancy') beamColor = 'rgba(0, 255, 255, 0.4)';
-                    if(sprite.name === 'Alchemy') beamColor = 'rgba(50, 205, 50, 0.4)';
-                    if(sprite.name === 'Nature') beamColor = 'rgba(34, 139, 34, 0.4)';
-                    if(sprite.name === 'Astronomy') beamColor = 'rgba(255, 215, 0, 0.4)';
-                    if (state.currentTarget && state.currentTarget.obj === sprite) { ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; ctx.fillRect(beamX - 2, 0, beamWidth + 4, spriteTop + spriteHeight); } else { ctx.fillStyle = beamColor; ctx.fillRect(beamX, 0, beamWidth, spriteTop + spriteHeight); }
-                    ctx.fillText(sprite.sprite, spriteScreenX, spriteTop + spriteHeight/2);
-                } else {
-                    if (sprite.type === 'fog') { ctx.shadowColor = '#e74c3c'; ctx.shadowBlur = 30; }
-                    ctx.fillText(sprite.sprite, spriteScreenX, spriteTop + spriteHeight/2); ctx.shadowBlur = 0;
-                }
-            }
-        }
-    }
+function queueDialog(n, t) {
+    state.dialogQueue.push({n, t});
+    if (!state.isDialogActive) advanceDialog();
 }
 
-// UI HELPERS
-function updateUI() { document.getElementById('magicBar').style.width = `${state.magic}%`; }
-function showNotification(text) {
+function advanceDialog() {
+    if (state.dialogQueue.length === 0) {
+        state.isDialogActive = false;
+        document.getElementById('dialogBox').style.display = 'none';
+        return;
+    }
+    state.isDialogActive = true;
+    const entry = state.dialogQueue.shift();
+    document.getElementById('dialogBox').style.display = 'flex';
+    document.getElementById('dialogName').innerText = entry.n;
+    document.getElementById('dialogText').innerText = entry.t;
+}
+
+function showNotification(msg) {
     const el = document.getElementById('notification');
-    el.innerText = text; el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 2000);
-}
-function queueDialog(name, text) { state.dialogQueue.push({name, text}); if (!state.isDialogActive) showNextDialog(); }
-function showNextDialog() {
-    if (state.dialogQueue.length === 0) { document.getElementById('dialogBox').style.display = 'none'; state.isDialogActive = false; return; }
-    state.isDialogActive = true; const line = state.dialogQueue[0];
-    const box = document.getElementById('dialogBox'); const portrait = box.querySelector('.doodles-portrait');
-    box.style.display = 'flex'; document.querySelector('.dialog-name').innerText = line.name;
-    document.getElementById('dialogText').innerText = line.text;
-    if (line.name === "Doodles") portrait.innerText = "🦊";
-    else if (line.name === "The Blur") portrait.innerText = "🌫️";
-    else portrait.innerText = "😐";
-}
-function advanceDialog() { state.dialogQueue.shift(); showNextDialog(); }
-function updateQuestArrow() {
-    let target = null;
-    if (state.quest < 2) {
-        let minDist = Infinity;
-        state.sprites.forEach(s => {
-            if (s.type === 'major' && !s.taken) {
-                const d = Math.hypot(s.x - state.player.x, s.y - state.player.y);
-                if (d < minDist) { minDist = d; target = s; }
-            }
-        });
-    } else if (state.quest === 2) {
-        target = state.sprites.find(s => s.type === 'fog');
-        if(!target) target = state.sprites.find(s => s.name === 'The Blur');
-    } else if (state.quest >= 3) {
-        target = state.sprites.find(s => s.name === 'The Blur');
-        if(!target || target.scale === 0) target = state.sprites.find(s => s.name === 'Prof. Pocus');
-    }
-    if (target) {
-        const dx = target.x - state.player.x;
-        const dy = target.y - state.player.y;
-        const angleToTarget = Math.atan2(dy, dx);
-        let diff = angleToTarget - state.player.dir;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        const deg = diff * (180 / Math.PI);
-        document.getElementById('questArrow').style.transform = `rotate(${deg}deg)`;
-    }
+    el.innerText = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
 }
 
-// Bind Global
-window.advanceDialog = advanceDialog; window.interact = interact; window.castMagic = castMagic; window.openArcade = openArcade; window.closeArcade = closeArcade; window.startGame = startGame; window.stopGame = stopGame;
+function renderMinimap() {
+    miniCtx.clearRect(0, 0, 160, 160);
+    const scale = 8;
+    for(let y=0; y<MAP_SIZE; y++) {
+        for(let x=0; x<MAP_SIZE; x++) {
+            const tile = WORLD_MAP[y][x];
+            if (tile > 0 && tile !== 10) {
+                miniCtx.fillStyle = THEMES[tile]?.main || '#444';
+                miniCtx.fillRect(x*scale, y*scale, scale-1, scale-1);
+            } else if (tile === 10) {
+                miniCtx.fillStyle = 'rgba(255,255,255,0.3)';
+                miniCtx.fillRect(x*scale, y*scale, scale-1, scale-1);
+            }
+        }
+    }
+    state.sprites.forEach(s => {
+        if (s.type === 'item' && !s.hidden) {
+            miniCtx.fillStyle = '#fbbf24';
+            miniCtx.fillRect(s.x*scale-1, s.y*scale-1, 3, 3);
+        }
+    });
+    miniCtx.fillStyle = '#3b82f6';
+    miniCtx.beginPath();
+    miniCtx.arc(state.player.x*scale, state.player.y*scale, 4, 0, Math.PI*2);
+    miniCtx.fill();
+    miniCtx.strokeStyle = 'white';
+    miniCtx.lineWidth = 1;
+    miniCtx.stroke();
+}
+
 init();
 </script>
 </body>
